@@ -1,13 +1,519 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Connections Game</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        padding: 20px;
+        margin: 0 auto;
+        max-width: 600px;
+      }
+
+      .container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 20px;
+        margin: 0 auto;
+        max-width: 600px;
+      }
+
+      .grid-item {
+        background-color: #efefe6;
+        border: 2px solid #efefe6;
+        border-radius: 8px;
+        padding: 20px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .grid-item:hover {
+        background-color: #e0e0d7;
+        transform: translateY(-2px);
+      }
+
+      .grid-itemX {
+        background-color: #5a594e;
+        border: 2px solid #5a594e;
+        color: white;
+        border-radius: 8px;
+        padding: 20px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: translateY(-2px);
+      }
+
+      .solved-group {
+        background-color: #a8d8a8;
+        border: 2px solid #6fbf6f;
+        color: #2d5a2d;
+        cursor: default;
+        transform: none;
+      }
+
+      .solved-group:hover {
+        background-color: #a8d8a8;
+        transform: none;
+      }
+
+      .text {
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      #title {
+        font-size: 48px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      #subtitle {
+        font-size: 18px;
+        color: #666;
+        margin-bottom: 30px;
+      }
+
+      .btn {
+        background-color: white;
+        border: 2px solid #333;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        margin: 8px;
+        padding: 12px 24px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn:hover {
+        background-color: #333;
+        color: white;
+      }
+
+      .btn:disabled {
+        background-color: #ccc;
+        border-color: #ccc;
+        color: #666;
+        cursor: not-allowed;
+      }
+
+      .btn:disabled:hover {
+        background-color: #ccc;
+        color: #666;
+      }
+
+      .button-controls {
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .lives-display {
+        text-align: center;
+        margin: 20px 0;
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      .lives-hearts {
+        color: #e74c3c;
+        font-size: 24px;
+      }
+
+      .results-container {
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .group-result {
+        background-color: white;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px 0;
+        font-weight: bold;
+      }
+
+      .group-1 {
+        border-color: #f39c12;
+        background-color: #fef9e7;
+      }
+      .group-2 {
+        border-color: #3498db;
+        background-color: #ebf3fd;
+      }
+      .group-3 {
+        border-color: #e74c3c;
+        background-color: #fdedec;
+      }
+      .group-4 {
+        border-color: #27ae60;
+        background-color: #eafaf1;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .game-over {
+        text-align: center;
+        padding: 20px;
+        background-color: white;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+
+      .congratulations {
+        color: #27ae60;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+
+      .failure {
+        color: #e74c3c;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+    </style>
   </head>
   <body>
+    <div class="text">
+      <h1 id="title">Connections</h1>
+      <p id="subtitle">Create four groups of four!</p>
+    </div>
 
-    <script src="script.js"></script>
+    <div class="grid-container" id="buttonContainer">
+      <button class="guess grid-item">Manhattan</button>
+      <button class="guess grid-item">A</button>
+      <button class="guess grid-item">Empire State</button>
+      <button class="guess grid-item">Chrysler</button>
+      <button class="guess grid-item">C</button>
+      <button class="guess grid-item">Central Park</button>
+      <button class="guess grid-item">Brooklyn</button>
+      <button class="guess grid-item">E</button>
+      <button class="guess grid-item">Flushing Meadows</button>
+      <button class="guess grid-item">One World Trade</button>
+      <button class="guess grid-item">Bronx</button>
+      <button class="guess grid-item">High Line</button>
+      <button class="guess grid-item">Flatiron</button>
+      <button class="guess grid-item">L</button>
+      <button class="guess grid-item">Prospect Park</button>
+      <button class="guess grid-item">Queens</button>
+    </div>
+
+    <div class="lives-display">
+      <span id="lives">Mistakes remaining: </span>
+      <span class="lives-hearts" id="hearts">♥♥♥♥</span>
+    </div>
+
+    <div class="button-controls">
+      <button class="btn" id="shuffle">Shuffle</button>
+      <button class="btn" id="clear">Deselect All</button>
+      <button class="btn" id="check">Submit</button>
+    </div>
+
+    <div class="results-container hidden" id="resultsContainer">
+      <div class="game-over" id="gameOverMessage"></div>
+      <div id="groupResults"></div>
+      <button class="btn" id="playAgain">Play Again</button>
+    </div>
+
+    <script>
+      // Game state
+      let btns = document.querySelectorAll(".guess");
+      const clearBtn = document.querySelector("#clear");
+      const checkBtn = document.querySelector("#check");
+      const livesP = document.querySelector("#lives");
+      const heartsP = document.querySelector("#hearts");
+      const buttonContainer = document.getElementById("buttonContainer");
+      const shuffleBtn = document.getElementById("shuffle");
+      const resultsContainer = document.getElementById("resultsContainer");
+      const gameOverMessage = document.getElementById("gameOverMessage");
+      const groupResults = document.getElementById("groupResults");
+      const playAgainBtn = document.getElementById("playAgain");
+
+      const guesses = [];
+      const solvedGroups = [];
+
+      // Answer groups with categories
+      const answerGroups = [
+        {
+          items: ["Manhattan", "Brooklyn", "Queens", "Bronx"],
+          category: "NYC Boroughs",
+          difficulty: 1,
+        },
+        {
+          items: ["Empire State", "Chrysler", "One World Trade", "Flatiron"],
+          category: "NYC Buildings",
+          difficulty: 2,
+        },
+        {
+          items: [
+            "Central Park",
+            "Prospect Park",
+            "Flushing Meadows",
+            "High Line",
+          ],
+          category: "NYC Parks & Recreation Areas",
+          difficulty: 3,
+        },
+        {
+          items: ["A", "C", "E", "L"],
+          category: "NYC Subway Lines",
+          difficulty: 4,
+        },
+      ];
+
+      let lives = 4;
+      let gameWon = false;
+
+      // Initialize game
+      showLives(lives);
+
+      // Event listeners
+      btns.forEach((btn) => {
+        btn.addEventListener("click", guessFunc);
+      });
+
+      clearBtn.addEventListener("click", clear);
+      checkBtn.addEventListener("click", check);
+      shuffleBtn.addEventListener("click", shuffle);
+      playAgainBtn.addEventListener("click", resetGame);
+
+      function guessFunc(e) {
+        let currBtn = e.target;
+
+        // Don't allow interaction with solved items
+        if (currBtn.classList.contains("solved-group")) {
+          return;
+        }
+
+        if (!guesses.includes(currBtn.innerText)) {
+          if (guesses.length < 4) {
+            currBtn.classList.add("grid-itemX");
+            currBtn.classList.remove("grid-item");
+            guesses.push(currBtn.innerText);
+          }
+        } else {
+          currBtn.classList.remove("grid-itemX");
+          currBtn.classList.add("grid-item");
+          let arrInx = guesses.indexOf(currBtn.innerText);
+          guesses.splice(arrInx, 1);
+        }
+
+        // Update submit button state
+        checkBtn.disabled = guesses.length !== 4;
+      }
+
+      function showLives(num) {
+        let hearts = "";
+        for (let i = 0; i < num; i++) {
+          hearts += "♥";
+        }
+        livesP.innerText = `Mistakes remaining: ${num}`;
+        heartsP.innerText = hearts;
+      }
+
+      function clear() {
+        const activeBtns = document.querySelectorAll(".grid-itemX");
+        activeBtns.forEach((btn) => {
+          if (!btn.classList.contains("solved-group")) {
+            btn.classList.remove("grid-itemX");
+            btn.classList.add("grid-item");
+          }
+        });
+        guesses.length = 0;
+        checkBtn.disabled = true;
+      }
+
+      function check() {
+        if (guesses.length !== 4) {
+          alert("You must select exactly 4 items!");
+          return;
+        }
+
+        let correctGroup = null;
+
+        // Check each answer group
+        for (let group of answerGroups) {
+          if (solvedGroups.includes(group)) continue;
+
+          if (arraysEqual(group.items.sort(), guesses.sort())) {
+            correctGroup = group;
+            break;
+          }
+        }
+
+        if (correctGroup) {
+          // Correct guess
+          solveGroup(correctGroup);
+          guesses.length = 0;
+          checkBtn.disabled = true;
+
+          // Check if game is won
+          if (solvedGroups.length === 4) {
+            gameWon = true;
+            endGame();
+          }
+        } else {
+          // Wrong guess
+          lives--;
+          showLives(lives);
+          clear();
+
+          if (lives === 0) {
+            endGame();
+          }
+        }
+      }
+
+      function solveGroup(group) {
+        solvedGroups.push(group);
+
+        // Find and style the solved buttons
+        const solvedButtons = [];
+        btns.forEach((btn) => {
+          if (group.items.includes(btn.innerText)) {
+            btn.classList.remove("grid-item", "grid-itemX");
+            btn.classList.add("solved-group");
+            btn.style.order = group.difficulty;
+            solvedButtons.push(btn);
+          }
+        });
+
+        // Move solved group to top
+        solvedButtons.forEach((btn) => {
+          buttonContainer.appendChild(btn);
+        });
+      }
+
+      function arraysEqual(a, b) {
+        return a.length === b.length && a.every((val, i) => val === b[i]);
+      }
+
+      function shuffle() {
+        const buttons = Array.from(
+          buttonContainer.getElementsByClassName("guess")
+        );
+
+        // Only shuffle unsolved buttons
+        const unsolvedButtons = buttons.filter(
+          (btn) => !btn.classList.contains("solved-group")
+        );
+
+        // Fisher-Yates shuffle
+        for (let i = unsolvedButtons.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [unsolvedButtons[i], unsolvedButtons[j]] = [
+            unsolvedButtons[j],
+            unsolvedButtons[i],
+          ];
+        }
+
+        // Remove all unsolved buttons and re-add them shuffled
+        unsolvedButtons.forEach((btn) => btn.remove());
+        unsolvedButtons.forEach((btn) => buttonContainer.appendChild(btn));
+      }
+
+      function endGame() {
+        // Hide game controls
+        document.querySelector(".button-controls").classList.add("hidden");
+        document.querySelector(".lives-display").classList.add("hidden");
+
+        // Show results
+        resultsContainer.classList.remove("hidden");
+
+        if (gameWon) {
+          gameOverMessage.innerHTML =
+            '<div class="congratulations">🎉 Congratulations! You solved it! 🎉</div>';
+        } else {
+          gameOverMessage.innerHTML =
+            '<div class="failure">😔 Game Over! Better luck next time! 😔</div>';
+          // Reveal all groups
+          answerGroups.forEach((group) => {
+            if (!solvedGroups.includes(group)) {
+              solveGroup(group);
+            }
+          });
+        }
+
+        // Show group results
+        displayResults();
+      }
+
+      function displayResults() {
+        groupResults.innerHTML = "";
+        answerGroups.forEach((group, index) => {
+          const groupDiv = document.createElement("div");
+          groupDiv.className = `group-result group-${index + 1}`;
+          groupDiv.innerHTML = `
+                    <div style="font-size: 18px; margin-bottom: 8px;">${group.category.toUpperCase()}</div>
+                    <div>${group.items.join(", ")}</div>
+                `;
+          groupResults.appendChild(groupDiv);
+        });
+      }
+
+      function resetGame() {
+        // Reset game state
+        lives = 4;
+        gameWon = false;
+        guesses.length = 0;
+        solvedGroups.length = 0;
+
+        // Reset UI
+        showLives(lives);
+        checkBtn.disabled = true;
+
+        // Reset all buttons
+        btns.forEach((btn) => {
+          btn.classList.remove("grid-itemX", "solved-group");
+          btn.classList.add("grid-item");
+          btn.style.order = "";
+        });
+
+        // Show game controls
+        document.querySelector(".button-controls").classList.remove("hidden");
+        document.querySelector(".lives-display").classList.remove("hidden");
+
+        // Hide results
+        resultsContainer.classList.add("hidden");
+
+        // Shuffle the board
+        shuffle();
+      }
+
+      // Initial shuffle
+      shuffle();
+    </script>
   </body>
 </html>
